@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image Classification</title>
+  <style>
+    *{
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+
+    #container {
+      max-width: 600px;
+      margin: 50px auto;
+      background-color: #ffffff84;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    #image-container {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    #bounding-box {
+      width: 100%;
+      height: 300px; /* Adjust as needed */
+      border: 2px dashed #aaa;
+      box-sizing: border-box;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #uploaded-image {
+      max-width: 100%;
+      height: auto;
+      border: 1px solid #dddddd60;
+      border-radius: 8px;
+    }
+
+    #prediction {
+      font-size: 18px;
+      margin-top: 20px;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    label {
+      display: inline-block;
+      background-color: #4caf50;
+      color: white;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    header {
+            background-color: #333;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+        }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Plant Disease Detection</h1>
+</header>
+
+  <div id="container">
+    <h1>Potato</h1>
+    <div id="image-container">
+      <div id="bounding-box">
+        <img id="upload-image" src="" alt="Uploaded Image">
+      </div>
+    </div>
+    <div id="prediction">
+      <p>Prediction: No prediction yet</p>
+    </div>
+    <label for="file-input">Choose Image</label>
+    <input type="file" id="file-input" onchange="previewImage(this)">
+    <button type="button" onclick="predictFruit()">Submit and Predict</button>
+  </div>
+
+  <script>
+    function previewImage(input) {
+      var file = input.files[0];
+      var reader = new FileReader();
+
+      reader.onload = function (e) {
+        document.getElementById('uploaded-image').src = e.target.result;
+      };
+
+      reader.readAsDataURL(file);
+    }
+
+    function predictFruit() {
+      var input = document.getElementById('file-input');
+      var file = input.files[0];
+
+      if (file) {
+        var reader = new FileReader();
+
+        reader.onload = function (e) {
+          var imageData = e.target.result.split(',')[1]; // Extract base64 data
+          var jsonData = { "image_data": imageData };
+
+          fetch('/submitPotato', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(jsonData)
+          })
+          .then(response => response.json())
+          .then(data => {
+            document.getElementById('prediction').innerText = "Prediction: " + data.prediction;
+          })
+          .catch(error => console.error('Error:', error));
+        };
+
+        reader.readAsDataURL(file);
+      } else {
+        alert('Please choose an image.');
+      }
+    }
+  </script>
+</body>
+</html>
